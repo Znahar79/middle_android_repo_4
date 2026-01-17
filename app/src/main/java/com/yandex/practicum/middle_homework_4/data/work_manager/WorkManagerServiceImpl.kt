@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
@@ -38,6 +39,9 @@ class WorkManagerServiceImpl(
     private fun createConstraints(): Constraints {
         // Реализуйте метод, возвращающий Constraints
         // В условиях укажите необходимость наличия интернет соединения.
+        return Constraints.Builder()
+            .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
+            .build()
     }
 
     private fun createRequest(repeat: Long, delayed: Long): PeriodicWorkRequest {
