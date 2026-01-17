@@ -7,6 +7,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.FIST_LAUNCH_DELAY
@@ -16,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class WorkManagerServiceImpl(
     private val context: Context,
@@ -50,6 +52,12 @@ class WorkManagerServiceImpl(
         // Интервал запуска задачи (в минутах)  = repeat.
         // Отсрочка запуска задачи в (секундах) = delayed.
         // Не забудьте в билдере указать constraints.
+        return PeriodicWorkRequestBuilder<RefreshWorker>(
+            repeatInterval = repeat,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES,
+        ).setConstraints(constraints = networkConstraints)
+            .setInitialDelay(delayed, TimeUnit.SECONDS)
+            .build()
     }
 
     override fun launchRefreshWork() {
