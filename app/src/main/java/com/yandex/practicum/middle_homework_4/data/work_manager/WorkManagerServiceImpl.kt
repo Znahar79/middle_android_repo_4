@@ -5,9 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.DEFAULT_REFRESH_PERIOD
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingContainer.Companion.FIST_LAUNCH_DELAY
@@ -17,9 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
-class WorkManagerServiceImp(
+class WorkManagerServiceImpl(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)

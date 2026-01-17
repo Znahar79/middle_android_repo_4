@@ -8,7 +8,7 @@ import androidx.room.Room
 import com.yandex.practicum.middle_homework_4.data.database.NewsDatabase
 import com.yandex.practicum.middle_homework_4.data.news_service.NewsServiceImpl
 import com.yandex.practicum.middle_homework_4.data.setting_repository.SettingsRepositoryImpl
-import com.yandex.practicum.middle_homework_4.data.work_manager.WorkManagerServiceImp
+import com.yandex.practicum.middle_homework_4.data.work_manager.WorkManagerServiceImpl
 import com.yandex.practicum.middle_homework_4.ui.AppViewModel
 import com.yandex.practicum.middle_homework_4.ui.contract.NewsService
 import com.yandex.practicum.middle_homework_4.ui.contract.SettingsRepository
@@ -40,7 +40,7 @@ val appModule = module {
         provideDataStore(androidContext())
     }
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
-    single<WorkManagerService> { WorkManagerServiceImp(androidApplication(), get()) }
+    single<WorkManagerService> { WorkManagerServiceImpl(androidApplication(), get()) }
     single<AppViewModel> { AppViewModel(get(), get(), get(), get()) }
 }
 
