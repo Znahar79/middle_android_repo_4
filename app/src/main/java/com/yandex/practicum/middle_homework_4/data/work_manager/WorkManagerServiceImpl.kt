@@ -19,7 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
-class WorkManagerServiceImp(
+class WorkManagerServiceImpl(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val scope: CoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
@@ -41,6 +41,9 @@ class WorkManagerServiceImp(
     private fun createConstraints(): Constraints {
         // Реализуйте метод, возвращающий Constraints
         // В условиях укажите необходимость наличия интернет соединения.
+        return Constraints.Builder()
+            .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
+            .build()
     }
 
     private fun createRequest(repeat: Long, delayed: Long): PeriodicWorkRequest {
@@ -49,6 +52,12 @@ class WorkManagerServiceImp(
         // Интервал запуска задачи (в минутах)  = repeat.
         // Отсрочка запуска задачи в (секундах) = delayed.
         // Не забудьте в билдере указать constraints.
+        return PeriodicWorkRequestBuilder<RefreshWorker>(
+            repeatInterval = repeat,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES,
+        ).setConstraints(constraints = networkConstraints)
+            .setInitialDelay(delayed, TimeUnit.SECONDS)
+            .build()
     }
 
     override fun launchRefreshWork() {

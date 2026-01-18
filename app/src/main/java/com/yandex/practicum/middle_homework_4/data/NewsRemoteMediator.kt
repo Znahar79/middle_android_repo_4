@@ -1,6 +1,8 @@
 package com.yandex.practicum.middle_homework_4.data
 
 import android.net.http.HttpException
+import android.os.Build
+import android.os.ext.SdkExtensions
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -57,36 +59,41 @@ class NewsRemoteMediator(
             }
         }
 
-        try {
-            val apiResponse = newsService.fetchData(page = page)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
+                Build.VERSION_CODES.S) >= 7) {
+            try {
+                val apiResponse = newsService.fetchData(page = page)
 
-            val news = apiResponse.news
-            val endOfPaginationReached = news.isEmpty()
+                val news = apiResponse.news
+                val endOfPaginationReached = news.isEmpty()
 
-            newsDatabase.withTransaction {
-                if (loadType == LoadType.REFRESH) {
-                    newsDatabase.getRemoteKeysDao().clearRemoteKeys()
-                    newsDatabase.getNewsDao().clearAllNews()
+                newsDatabase.withTransaction {
+                    if (loadType == LoadType.REFRESH) {
+                        newsDatabase.getRemoteKeysDao().clearRemoteKeys()
+                        newsDatabase.getNewsDao().clearAllNews()
+                    }
+                    val prevKey = if (page > 1) page - 1 else null
+                    val nextKey = if (endOfPaginationReached) null else page + 1
+                    val remoteKeys = news.map {
+                        RemoteKeys(
+                            newsID = it.id,
+                            prevKey = prevKey,
+                            currentPage = page,
+                            nextKey = nextKey
+                        )
+                    }
+                    newsDatabase.getRemoteKeysDao().insertAll(remoteKeys)
+                    newsDatabase.getNewsDao()
+                        .insertAll(news.onEachIndexed { _, movie -> movie.page = page })
                 }
-                val prevKey = if (page > 1) page - 1 else null
-                val nextKey = if (endOfPaginationReached) null else page + 1
-                val remoteKeys = news.map {
-                    RemoteKeys(
-                        newsID = it.id,
-                        prevKey = prevKey,
-                        currentPage = page,
-                        nextKey = nextKey
-                    )
-                }
-                newsDatabase.getRemoteKeysDao().insertAll(remoteKeys)
-                newsDatabase.getNewsDao()
-                    .insertAll(news.onEachIndexed { _, movie -> movie.page = page })
+                return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
+            } catch (error: IOException) {
+                return MediatorResult.Error(error)
+            } catch (error: HttpException) {
+                return MediatorResult.Error(error)
             }
-            return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
-        } catch (error: IOException) {
-            return MediatorResult.Error(error)
-        } catch (error: HttpException) {
-            return MediatorResult.Error(error)
+        } else {
+            return MediatorResult.Error(Exception())
         }
     }
 
